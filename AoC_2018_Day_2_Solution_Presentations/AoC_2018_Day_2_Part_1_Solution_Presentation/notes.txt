@@ -1,0 +1,332 @@
+// Note: I've posted this on Dev
+
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+
+Title: Advent of Code 2018 Day 2 Part 1 - Solution and Explanation
+Tags: #javascript #programming #algorithms #adventofcode
+
+---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+
+The challenge itself can be found [here](https://adventofcode.com/2018/day/2).
+
+Please note that:
+- This article focuses on only one solution to a challenge to which there are multiple solutions.
+- The solution in its entirety can be found at the bottom.
+- The solution utilizes a main function, objects, loops, conditionals, array methods, and the `Object.values()` method.
+
+Because the challenge's *actual* "puzzle input" is very long, we will be working with the challenge's *example* "puzzle input":
+
+abcdef
+bababc
+abbcde
+abcccd
+aabcdd
+abcdee
+ababab
+
+Before we can get to the main part of the challenge, we have to convert what's just above into JavaScript, so that we can then convert it into an array of strings (each string will be a box ID).
+
+So how do we interpret what the seven lines of text are? In other words, as they are currently, how can we translate (so to speak) them into JavaScript?
+
+Well, we consider it to be one long string with line breaks:
+
+```javascript
+'abcdef\nbababc\nabbcde\nabcccd\naabcdd\nabcdee\nababab'
+```
+
+How can we be sure this is correct?
+
+Well if we log the string to the console, what we'll see printed is the original input:
+
+abcdef
+bababc
+abbcde
+abcccd
+aabcdd
+abcdee
+ababab
+
+So we know it's correct.
+
+Let's save the string into a variable called `examplePuzzleInput`.
+
+```javascript
+const examplePuzzleInput = 'abcdef\nbababc\nabbcde\nabcccd\naabcdd\nabcdee\nababab'
+```
+
+Next, let's...
+
+1. use the `split()` method to convert this long string into an array of strings
+2. store our result in a variable called `boxIDsArr`
+
+```javascript
+const boxIDsArr = examplePuzzleInput.split('\n')
+```
+
+What does `boxIDsArr` log?
+
+`['abcdef', 'bababc', 'abbcde', 'abcccd', 'aabcdd', 'abcdee', 'ababab']`
+
+So now we have our array and we can move on to the main part of the challenge.
+
+Our task is to...
+
+1. count the number of box IDs that have exactly 2 of any letter
+2. count the number of box IDs that have exactly 3 of any letter
+3. do this to get the checksum: number of doubles * number of triples
+
+(If in need of more clarity, the challenge itself provides some explanation.)
+
+First we'll set up a function called `getMatches` that takes the parameter `input`. `Input` is the alias we'll use for the array of box IDs that's shown above.
+
+```javascript
+function getMatches(input) {
+
+}
+```
+
+Because we want to count...
+
+1. the number of box IDs that have exactly TWO of any letter
+2. the number of box IDs that have exactly THREE of any letter
+
+...the next thing we'll do is set up an object, called `matches`, to keep count of the number of matches found for each of these two categories.
+
+```javascript
+function getMatches(input) {
+    let matches = {
+        twice: 0,
+        thrice: 0
+    }
+}
+```
+
+Because we need to access each of the `input` array's strings, we're going to loop through `input` with a `forEach` loop. Each value we'll be accessing in this loop is a box ID string, so we'll call it `boxIdStr`.
+
+```javascript
+function getMatches(input) {
+    let matches = {
+        twice: 0,
+        thrice: 0
+    }
+    input.forEach(boxIdStr => {
+
+    })  
+}
+```
+
+But what we really need to be able to access is each letter in each string. So, since we're already in each string, we're now going to loop through each string with another `forEach` loop.
+
+Note that we're putting the `split()` method on each string to convert the string to an array of letters (with each letter being a string). So `boxIdStr.split('')` for the `input` array's first string (the first string is: `'abcdef'`) looks like this:
+
+`['a', 'b', 'c', 'd', 'e', 'f']`
+
+```javascript
+function getMatches(input) {
+    let matches = {
+        twice: 0,
+        thrice: 0
+    }
+    input.forEach(boxIdStr => {
+        boxIdStr.split('').forEach(letter => {
+
+        })
+    })
+}
+```
+
+Because we're going to be counting the number of occurrences of each letter in each string, the next thing we'll do is set up another object, this time called `counts`, which will start as an empty object.
+
+```javascript
+function getMatches(input) {
+    let matches = {
+        twice: 0,
+        thrice: 0
+    }
+    input.forEach(boxIdStr => {
+        let counts = {}
+        boxIdStr.split('').forEach(letter => {
+
+        })
+    })
+}
+```
+
+How are we going to count the number of occurrences of each letter in each string?
+
+Let's take the second string in the `input` array (the second string is: `'bababc'`) as an example. Having been converted to an array of letters, it looks like this:
+
+`['b', 'a', 'b', 'a', 'b', 'c']`
+
+As the loop hits `'b'` (the first letter in the string):
+If `counts[letter]` (in other words, `counts['b']`) does exist (in other words, if the `counts` object does have a key called `b`), then increment `b`'s value by 1. But if `counts[letter]` (in other words, `counts['b']`) does not yet exist (in other words, if the `counts` object does not yet have a key called `b`), then give the `counts` object a key called `b` and give `b` a value of 1.
+
+In the code just below, note that the `if` clause's `counts[letter]` is a shorthand for `counts.hasOwnProperty(letter)` which is a shorthand for `counts.hasOwnProperty(letter) === true`. The reason `counts[letter]` works here is because if it returns `undefined`, then it is returning something that is `falsy`, and if it returns a value, then it is returning something that is `truthy`.
+
+Also note that we could replace the below code's `if...else` statement with `counts[letter] = (counts[letter] || 0) + 1`. It's just a more concise way of accomplishing the same thing.
+
+```javascript
+function getMatches(input) {
+    let matches = {
+        twice: 0,
+        thrice: 0
+    }
+    input.forEach(boxIdStr => {
+        let counts = {}
+        boxIdStr.split('').forEach(letter => {
+            if (counts[letter]) {
+                counts[letter]++
+            } else {
+                counts[letter] = 1
+            }
+        })
+        console.log(counts)
+    })
+}
+```
+
+Note that `console.log(counts)` is only included in the code above so that we can see exactly what the `counts` object for each string looks like once everything that is going to be added to it has been added to it. For example, the `counts` object for the second string looks like this:
+
+`{b: 3, a: 2, c: 1}`
+
+So we know that, in the second string, `a` appears two times, `b` appears three times, and `c` appears one time.
+
+Of course what we've explored here with the second string has been repeated for every string in the `input` array.
+
+Now we need to determine for each `counts` object if it does or does not contain values that are `2` or values that are `3`. Notice that what we are *not* doing is counting the number of values in each `counts` object that are `2` or `3`. (In case this distinction is still unclear, it's described in more detail farther down.)
+
+We accomplish this by using the `includes()` method.
+
+Because `includes()` returns `true` or `false`, `Object.values(counts).includes(2)`, for example, is not concerned with how many of a `counts` object's values are `2` but rather whether or not this `counts` object has any values that are `2`.
+
+```javascript
+function getMatches(input) {
+    let matches = {
+        twice: 0,
+        thrice: 0
+    }
+    input.forEach(boxIdStr => {
+        let counts = {}
+        boxIdStr.split('').forEach(letter => {
+            if (counts[letter]) {
+                counts[letter]++
+            } else {
+                counts[letter] = 1
+            }
+        })
+        console.log(counts)
+        if (Object.values(counts).includes(2)) {
+        
+        }
+        if (Object.values(counts).includes(3)) {
+        
+        }
+    })
+}
+```
+
+And if a `count` object contains values of `2` (regardless of how many of the object's values are `2`), we will increment the value of the `matches` object's `twice` key by 1.
+
+In other words, with such an object as this `{a: 1, b: 2, c: 1, d: 1, e: 1}`, the `matches` object's `twice` key's value will increment by 1, and this is probably pretty obvious. But what may not be obvious is that even with such an object as this `{a: 2, b: 1, c: 1, d: 2}`, the `matches` object's `twice` key's value will increment by 1, not 2. Again, this is due to how `includes()` works.
+
+And if a `count` object contains values of `3` (regardless of how many of the object's values are `3`), we will increment the value of the `matches` object's `thrice` key by 1.
+
+In other words, with such an object as this `{a: 1, b: 1, c: 3, d: 1}`, the `matches` object's `thrice` key's value will increment by 1, and this is probably pretty obvious. But what may not be obvious is that even with such an object as this `{a: 3, b: 3}`, the `matches` object's `thrice` key's value will increment by 1, not 2. Again, this is due to how `includes()` works.
+
+And it probably doesn't need to be said but, because more clarity is better, let's include it: With such an object as this `{a: 2, b: 3, c: 1, d: 1, e: 3, f: 2, g: 3}`, the `matches` object's `twice` key's value and `thrice` key's value will each only be incremented by 1.
+
+```javascript
+function getMatches(input) {
+    let matches = {
+        twice: 0,
+        thrice: 0
+    }
+    input.forEach(boxIdStr => {
+        let counts = {}
+        boxIdStr.split('').forEach(letter => {
+            if (counts[letter]) {
+                counts[letter]++
+            } else {
+                counts[letter] = 1
+            }
+        })
+        console.log(counts)
+        if (Object.values(counts).includes(2)) {
+            matches.twice++
+        }
+        if (Object.values(counts).includes(3)) {
+            matches.thrice++
+        }
+    })
+}
+```
+
+Because what we're after is the checksum and the way to get the checksum is to calculate *number of doubles * number of triples*, our next step is to write this calculation in our function and return it.
+
+```javascript
+function getMatches(input) {
+    let matches = {
+        twice: 0,
+        thrice: 0
+    }
+    input.forEach(boxIdStr => {
+        let counts = {}
+        boxIdStr.split('').forEach(letter => {
+            if (counts[letter]) {
+                counts[letter]++
+            } else {
+                counts[letter] = 1
+            }
+        })
+        console.log(counts)
+        if (Object.values(counts).includes(2)) {
+            matches.twice++
+        }
+        if (Object.values(counts).includes(3)) {
+            matches.thrice++
+        }
+    })
+
+    return matches.twice * matches.thrice
+}
+```
+
+Now for our final step: Call the `getMatches` function, passing in `boxIDsArr`, and log that function call to the console.
+
+```javascript
+function getMatches(input) {
+    let matches = {
+        twice: 0,
+        thrice: 0
+    }
+    input.forEach(boxIdStr => {
+        let counts = {}
+        boxIdStr.split('').forEach(letter => {
+            if (counts[letter]) {
+                counts[letter]++
+            } else {
+                counts[letter] = 1
+            }
+        })
+        console.log(counts)
+        if (Object.values(counts).includes(2)) {
+            matches.twice++
+        }
+        if (Object.values(counts).includes(3)) {
+            matches.thrice++
+        }
+    })
+
+    return matches.twice * matches.thrice
+}
+
+console.log(getMatches(boxIDsArr)) // 12 // 12 is the checksum
+```
+
+I hope this has been clear and helpful!
+
+Thank you for reading!

@@ -1,0 +1,568 @@
+// Note: I've posted this on Dev
+
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+
+Title: Advent of Code 2018 Day 2 Part 2 - Solution and Explanation
+Tags: #javascript #programming #algorithms #adventofcode
+
+---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+
+The challenge itself can be found [here](https://adventofcode.com/2018/day/2) once Part 1 has been solved. (My Part 1 article can be found [here](https://dev.to/benboorstein/advent-of-code-2018-day-2-part-1-solution-and-explanation-294m).)
+
+Please note that:
+- This article focuses on only one solution to a challenge to which there are multiple solutions.
+- The solution in its entirety can be found at the bottom.
+- The solution utilizes two main functions, loops, array methods, and conditionals.
+
+Because the challenge's *actual* "puzzle input" is very long, we will be working with the challenge's *example* "puzzle input":
+
+abcde
+fghij
+klmno
+pqrst
+fguij
+axcye
+wvxyz
+
+Before we can get to the main part of the challenge, we have to convert what's just above into JavaScript, so that we can then convert it into an array of strings (each string will be a box ID).
+
+So how do we interpret what the seven lines of text are? In other words, as they are currently, how can we translate (so to speak) them into JavaScript?
+
+Well, we consider it to be one long string with line breaks:
+
+```javascript
+'abcde\nfghij\nklmno\npqrst\nfguij\naxcye\nwvxyz'
+```
+
+How can we be sure this is correct?
+
+Well if we log the string to the console, what we'll see printed is the original input:
+
+abcde
+fghij
+klmno
+pqrst
+fguij
+axcye
+wvxyz
+
+So we know it's correct.
+
+Let's save the string into a variable called `examplePuzzleInput`.
+
+```javascript
+const examplePuzzleInput = 'abcde\nfghij\nklmno\npqrst\nfguij\naxcye\nwvxyz'
+```
+
+Next, let's...
+
+1. use the `split()` method to convert this long string into an array of strings
+2. store our result in a variable called `boxIDsArr`
+
+```javascript
+const boxIDsArr = examplePuzzleInput.split('\n')
+```
+
+What does `boxIDsArr` log?
+
+`['abcde', 'fghij', 'klmno', 'pqrst', 'fguij', 'axcye', 'wvxyz']`
+
+So now we have our array and we can move on to the main part of the challenge.
+
+Our task is to...
+
+1. find the two box IDs that differ by only one letter, with this differing letter being at the same position in each box ID, e.g., `fghij` and `fguij`
+2. remove, from either box ID, the differing letter to get a shorter-by-one box ID with only the letters shared by the two similar box IDs, e.g., `fgij`
+
+First we'll set up a function called `findTheTwoBoxIDs` that takes the parameter `input`. `Input` is the alias we'll use for the array of box IDs that's shown above.
+
+```javascript
+function findTheTwoBoxIDs(input) {
+
+}
+```
+
+Because we want to access each box ID string in `input`, we'll loop through `input`.
+
+```javascript
+function findTheTwoBoxIDs(input) {
+    for (let i = 0; i < input.length; i++) {
+
+    }
+}
+```
+
+And we'll log each `input[i]` string to the console so that we can see each string. At this point, doing this isn't very helpful, but, later, once we've logged other steps as well, it will prove to be quite useful in enabling us to see exactly what the function is doing.
+
+```javascript
+function findTheTwoBoxIDs(input) {
+    for (let i = 0; i < input.length; i++) {
+        console.log(input[i])
+    }
+}
+```
+
+Let's pause and think about exactly what we need to do next. Because we need to find, out of all the strings, which two strings differ by only one same-positioned letter, and because it's highly unlikely that these two strings will be positioned consecutively in `input`, what we need to do is compare the first string to every string after it, then compare the second string to every string after it, then compare the third string to every string after it, and so on. So, what we want is a loop inside of our first loop that will start at the string after `input[i]`.
+
+This way, when the first string (`'abcde'`) is `input[i]`, the first string will be compared to every other string (`'fghij'`, `'klmno'`, `'pqrst'`, `'fguij'`, `'axcye'`, and `'wvxyz'`), and the next time through the outer loop, when the second string (`'fghij'`) is `input[i]`, the second string will be compared to every other string (`'klmno'`, `'pqrst'`, `'fguij'`, `'axcye'`, and `'wvxyz'`), and so on.
+
+Note that, later, once we have several different `console.log()`s, we'll be able to see this process playing out.
+
+```javascript
+function findTheTwoBoxIDs(input) {
+    for (let i = 0; i < input.length; i++) {
+        console.log(input[i])
+
+        for (let j = i + 1; j < input.length; j++) {
+
+        }
+    }
+}
+```
+
+And we'll log each `input[j]` string to the console.
+
+```javascript
+function findTheTwoBoxIDs(input) {
+    for (let i = 0; i < input.length; i++) {
+        console.log(input[i])
+
+        for (let j = i + 1; j < input.length; j++) {
+            console.log(input[j])
+        }
+    }
+}
+```
+
+Now that we have access to a 'control' string (`input[i]`) and a 'comparison' string (`input[j]`), and because we're going to need to access each letter in each string, let's use the `split()` method to convert each string to an array of letters. We'll store the converted 'control' string in a variable called `boxIdLettersArr` and the converted 'comparison' string in a variable called `nextBoxIdLettersArr`.
+
+```javascript
+function findTheTwoBoxIDs(input) {
+    for (let i = 0; i < input.length; i++) {
+        console.log(input[i])
+
+        for (let j = i + 1; j < input.length; j++) {
+            console.log(input[j])
+
+            let boxIdLettersArr = input[i].split('')
+            let nextBoxIdLettersArr = input[j].split('')
+        }
+    }
+}
+```
+
+And because we're going to be counting the number of letters in each two box ID comparison that are not the same, let's declare a counter variable called `mismatchedLetters` and start it at `0`.
+
+```javascript
+function findTheTwoBoxIDs(input) {
+    for (let i = 0; i < input.length; i++) {
+        console.log(input[i])
+
+        for (let j = i + 1; j < input.length; j++) {
+            console.log(input[j])
+
+            let boxIdLettersArr = input[i].split('')
+            let nextBoxIdLettersArr = input[j].split('')
+            let mismatchedLetters = 0
+        }
+    }
+}
+```
+
+In order to compare the letters of `boxIdLettersArr` and `nextBoxIdLettersArr`, we need another loop, this one inside our inner loop.
+
+```javascript
+function findTheTwoBoxIDs(input) {
+    for (let i = 0; i < input.length; i++) {
+        console.log(input[i])
+
+        for (let j = i + 1; j < input.length; j++) {
+            console.log(input[j])
+
+            let boxIdLettersArr = input[i].split('')
+            let nextBoxIdLettersArr = input[j].split('')
+            let mismatchedLetters = 0
+            
+            for (let k = 0; k < boxIdLettersArr.length; k++) {
+
+            }
+        }
+    }
+}
+```
+
+What might be a good way to compare the letters of `boxIdLettersArr` and `nextBoxIdLettersArr`?
+
+How about an `if` statement that checks if each letter of `boxIdLettersArr` at position `k` is different than each letter of `nextBoxIdLettersArr` at position `k`?
+
+```javascript
+function findTheTwoBoxIDs(input) {
+    for (let i = 0; i < input.length; i++) {
+        console.log(input[i])
+
+        for (let j = i + 1; j < input.length; j++) {
+            console.log(input[j])
+
+            let boxIdLettersArr = input[i].split('')
+            let nextBoxIdLettersArr = input[j].split('')
+            let mismatchedLetters = 0
+            
+            for (let k = 0; k < boxIdLettersArr.length; k++) {
+                if (boxIdLettersArr[k] !== nextBoxIdLettersArr[k]) {
+
+                }
+            }
+        }
+    }
+}
+```
+
+And if it is the case that the letter at position `k` in each letter array is not the same letter, then let's increment our counter variable by 1.
+
+```javascript
+function findTheTwoBoxIDs(input) {
+    for (let i = 0; i < input.length; i++) {
+        console.log(input[i])
+
+        for (let j = i + 1; j < input.length; j++) {
+            console.log(input[j])
+
+            let boxIdLettersArr = input[i].split('')
+            let nextBoxIdLettersArr = input[j].split('')
+            let mismatchedLetters = 0
+            
+            for (let k = 0; k < boxIdLettersArr.length; k++) {
+                if (boxIdLettersArr[k] !== nextBoxIdLettersArr[k]) {
+                    mismatchedLetters++
+                }
+            }
+        }
+    }
+}
+```
+
+Our next step is to log `mismatchedLetters` to the console, making sure to log it *outside* of the loop so that `mismatchedLetters` has finished incrementing by the time we log it.
+
+```javascript
+function findTheTwoBoxIDs(input) {
+    for (let i = 0; i < input.length; i++) {
+        console.log(input[i])
+
+        for (let j = i + 1; j < input.length; j++) {
+            console.log(input[j])
+
+            let boxIdLettersArr = input[i].split('')
+            let nextBoxIdLettersArr = input[j].split('')
+            let mismatchedLetters = 0
+            
+            for (let k = 0; k < boxIdLettersArr.length; k++) {
+                if (boxIdLettersArr[k] !== nextBoxIdLettersArr[k]) {
+                    mismatchedLetters++
+                }
+            }
+
+            console.log(mismatchedLetters)
+        }
+    }
+}
+```
+
+We certainly have not solved the whole challenge yet, but let's take a moment to log our function, as it is now, to the console.
+
+```javascript
+function findTheTwoBoxIDs(input) {
+    for (let i = 0; i < input.length; i++) {
+        console.log(input[i])
+
+        for (let j = i + 1; j < input.length; j++) {
+            console.log(input[j])
+
+            let boxIdLettersArr = input[i].split('')
+            let nextBoxIdLettersArr = input[j].split('')
+            let mismatchedLetters = 0
+            
+            for (let k = 0; k < boxIdLettersArr.length; k++) {
+                if (boxIdLettersArr[k] !== nextBoxIdLettersArr[k]) {
+                    mismatchedLetters++
+                }
+            }
+
+            console.log(mismatchedLetters)
+        }
+    }
+}
+
+console.log(findTheTwoBoxIDs(boxIDsArr))
+```
+
+Notice what it is that the function's three `console.log()`s are enabling us to see.
+
+In the console, we can now see...
+
+1. the process described farther above of each box ID being compared, one by one, to every box ID below it
+2. the number of mismatched letters for each comparison
+
+Just for fun at this point, try to find the comparison for which `mismatchedLetters` logs `1`!
+
+Just as a quick reminder: If `mismatchedLetters` logs `1`, then we know that the two box IDs whose comparison generated this `1` are the two box IDs we're trying to find. In other words, these are the two box IDs that vary by only one letter at the same position in each box ID.
+
+So how do we put this into our function?
+
+How about an `if` statement that checks if `mismatchedLetters` is ever exactly 1?
+
+```javascript
+function findTheTwoBoxIDs(input) {
+    for (let i = 0; i < input.length; i++) {
+        console.log(input[i])
+
+        for (let j = i + 1; j < input.length; j++) {
+            console.log(input[j])
+
+            let boxIdLettersArr = input[i].split('')
+            let nextBoxIdLettersArr = input[j].split('')
+            let mismatchedLetters = 0
+            
+            for (let k = 0; k < boxIdLettersArr.length; k++) {
+                if (boxIdLettersArr[k] !== nextBoxIdLettersArr[k]) {
+                    mismatchedLetters++
+                }
+            }
+
+            console.log(mismatchedLetters)
+
+            if (mismatchedLetters === 1) {
+
+            }
+        }
+    }
+}
+```
+
+And if `mismatchedLetters` is ever exactly 1, then what? Well first let's see what we get by logging `boxIdLettersArr` and `nextBoxIdLettersArr` (and remember that each of these is an array of letters, as opposed to a string).
+
+```javascript
+function findTheTwoBoxIDs(input) {
+    for (let i = 0; i < input.length; i++) {
+        console.log(input[i])
+
+        for (let j = i + 1; j < input.length; j++) {
+            console.log(input[j])
+
+            let boxIdLettersArr = input[i].split('')
+            let nextBoxIdLettersArr = input[j].split('')
+            let mismatchedLetters = 0
+            
+            for (let k = 0; k < boxIdLettersArr.length; k++) {
+                if (boxIdLettersArr[k] !== nextBoxIdLettersArr[k]) {
+                    mismatchedLetters++
+                }
+            }
+
+            console.log(mismatchedLetters)
+
+            if (mismatchedLetters === 1) {
+                console.log(boxIdLettersArr)
+                console.log(nextBoxIdLettersArr)
+            }
+        }
+    }
+}
+
+console.log(findTheTwoBoxIDs(boxIDsArr))
+```
+
+We see that what's logged is two box IDs, `['f', 'g', 'h', 'i', 'j']` and `['f', 'g', 'u', 'i', 'j']`, respectively.
+
+So have we solved the first item of our two-item task list?
+
+Recall it was: "find the two box IDs that differ by only one letter, with this differing letter being at the same position in each box ID, e.g., `fghij` and `fguij`".
+
+So yes we have!
+
+Now for the second task, which was: "remove, from either box ID, the differing letter to get a shorter-by-one box ID with only the letters shared by the two similar box IDs, e.g., `fgij`".
+
+So how should we do this?
+
+Well we could accomplish this within the `findTheTwoBoxIDs` function, but instead let's call a new function, just because it's a bit cleaner.
+
+We'll call the new function `findSharedLetters`, because the purpose of this function is to find the letters that the two box IDs have in common.
+
+So given that, in `findSharedLetters`, we are going to be working with the two box IDs, and given that working with them is easiest in array form, what arguments do we want to pass to `findSharedLetters`?
+
+The arrays we just logged: `boxIdLettersArr` and `nextBoxIdLettersArr`.
+
+And let's not forget to *return* `findSharedLetters` to `findTheTwoBoxIDs`.
+
+```javascript
+function findTheTwoBoxIDs(input) {
+    for (let i = 0; i < input.length; i++) {
+        console.log(input[i])
+
+        for (let j = i + 1; j < input.length; j++) {
+            console.log(input[j])
+
+            let boxIdLettersArr = input[i].split('')
+            let nextBoxIdLettersArr = input[j].split('')
+            let mismatchedLetters = 0
+            
+            for (let k = 0; k < boxIdLettersArr.length; k++) {
+                if (boxIdLettersArr[k] !== nextBoxIdLettersArr[k]) {
+                    mismatchedLetters++
+                }
+            }
+
+            console.log(mismatchedLetters)
+
+            if (mismatchedLetters === 1) {
+                console.log(boxIdLettersArr) // ['f', 'g', 'h', 'i', 'j']
+                console.log(nextBoxIdLettersArr) // ['f', 'g', 'u', 'i', 'j']
+
+                return findSharedLetters(boxIdLettersArr, nextBoxIdLettersArr)
+            }
+        }
+    }
+}
+```
+
+Now let's construct `findSharedLetters`.
+
+And note that the aliases for `findSharedLetters`'s arguments will be `IdLettersArr` and `nextIdLettersArr`, respectively.
+
+```javascript
+function findSharedLetters(IdLettersArr, nextIdLettersArr) {
+
+}
+```
+
+In `findSharedLetters`, we need to compare our two box IDs and, in the end, return a string with only the letters that the box IDs share.
+
+The string that we need to return will be converted from an array of letters. So we can safely say we're going to be creating a new array.
+
+So let's do that first. We'll call our new array `sharedLettersArr`.
+
+```javascript
+function findSharedLetters(IdLettersArr, nextIdLettersArr) {
+    let sharedLettersArr = []
+}
+```
+
+What we want is a way to push only the shared letters into `sharedLettersArr`.
+
+So we'll need access to each box ID letter. Let's pick just one of the box IDs and loop through it.
+
+```javascript
+function findSharedLetters(IdLettersArr, nextIdLettersArr) {
+    let sharedLettersArr = []
+
+    for (let i = 0; i < IdLettersArr.length; i++) {
+
+    }
+}
+```
+
+Because we want to push *only* the shared letters of the two box IDs, let's add an `if` statement that checks if each letter of `IdLettersArr` at position `i` is the same as each letter of `nextIdLettersArr` at position `i`.
+
+```javascript
+function findSharedLetters(IdLettersArr, nextIdLettersArr) {
+    let sharedLettersArr = []
+
+    for (let i = 0; i < IdLettersArr.length; i++) {
+        if (IdLettersArr[i] === nextIdLettersArr[i]) {
+
+        }
+    }
+}
+```
+
+And now let's push the common letters to `sharedLettersArr`.
+
+```javascript
+function findSharedLetters(IdLettersArr, nextIdLettersArr) {
+    let sharedLettersArr = []
+
+    for (let i = 0; i < IdLettersArr.length; i++) {
+        if (IdLettersArr[i] === nextIdLettersArr[i]) {
+            sharedLettersArr.push(IdLettersArr[i])
+        }
+    }
+}
+```
+
+For the final couple steps of this function, let's convert `sharedLettersArr` to a string using the `join()` method, store it in a variable called `sharedLettersStr`, and return `sharedLettersStr`.
+
+```javascript
+function findSharedLetters(IdLettersArr, nextIdLettersArr) {
+    let sharedLettersArr = []
+
+    for (let i = 0; i < IdLettersArr.length; i++) {
+        if (IdLettersArr[i] === nextIdLettersArr[i]) {
+            sharedLettersArr.push(IdLettersArr[i])
+        }
+    }
+
+    const sharedLettersStr = sharedLettersArr.join('')
+    return sharedLettersStr
+}
+```
+
+Before moving on to the end, just note that the following is a more concise (though less explicit) way to accomplish what all the code in `findSharedLetters` accomplishes:
+
+```javascript
+return IdLettersArr.filter((letter, index) => letter === nextIdLettersArr[index]).join('')
+```
+
+Now for our final step: Let's put it all together.
+
+```javascript
+function findTheTwoBoxIDs(input) {
+    for (let i = 0; i < input.length; i++) {
+        console.log(input[i])
+
+        for (let j = i + 1; j < input.length; j++) {
+            console.log(input[j])
+
+            let boxIdLettersArr = input[i].split('')
+            let nextBoxIdLettersArr = input[j].split('')
+            let mismatchedLetters = 0
+            
+            for (let k = 0; k < boxIdLettersArr.length; k++) {
+                if (boxIdLettersArr[k] !== nextBoxIdLettersArr[k]) {
+                    mismatchedLetters++
+                }
+            }
+
+            console.log(mismatchedLetters)
+
+            if (mismatchedLetters === 1) {
+                console.log(boxIdLettersArr) // ['f', 'g', 'h', 'i', 'j']
+                console.log(nextBoxIdLettersArr) // ['f', 'g', 'u', 'i', 'j']
+
+                return findSharedLetters(boxIdLettersArr, nextBoxIdLettersArr)
+            }
+        }
+    }
+}
+
+console.log(findTheTwoBoxIDs(boxIDsArr)) // fgij // f, g, i, and j are the common letters of the two box IDs that differed by one letter
+
+function findSharedLetters(IdLettersArr, nextIdLettersArr) {
+    let sharedLettersArr = []
+
+    for (let i = 0; i < IdLettersArr.length; i++) {
+        if (IdLettersArr[i] === nextIdLettersArr[i]) {
+            sharedLettersArr.push(IdLettersArr[i])
+        }
+    }
+
+    const sharedLettersStr = sharedLettersArr.join('')
+    return sharedLettersStr
+}
+```
+
+I hope this has been clear and helpful!
+
+Thank you for reading!
